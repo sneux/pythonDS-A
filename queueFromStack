@@ -1,0 +1,35 @@
+class Queue:
+
+    def __init__(self):
+        self.enqueueStack = []
+        self.dequeueStack = []
+
+    def enqueue(self, data):
+        self.enqueueStack.append(data)
+
+    def dequeue(self):
+
+        # if there are no items in the enqueue and dequeue stacks
+        if len(self.enqueueStack) == 0 and len(self.dequeueStack) == 0:
+            raise Exception("Stacks are empty")
+
+        # of the dequeue stack is empty 
+        if len(self.dequeueStack) == 0:
+            while len(self.enqueueStack) != 0:
+                self.dequeueStack.append(self.enqueueStack.pop())
+        
+        return self.dequeueStack.pop()
+    
+queue = Queue()
+queue.enqueue(1)
+queue.enqueue(2)
+queue.enqueue(3)
+queue.enqueue(4)
+queue.dequeue()
+queue.dequeue()
+print(queue.dequeue())
+queue.enqueue(100)
+queue.enqueue(200)
+print(queue.dequeue())
+print(queue.dequeue())
+print(queue.dequeue())
