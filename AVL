@@ -1,0 +1,281 @@
+class Node:
+
+    def __init__(self, data, parent):
+        self.data = data
+        self.parent = parent
+        self.rightChild = None
+        self.leftChild = None
+        self.height = 0
+
+
+class AVLTree:
+
+    def __init__(self):
+        self.root = None
+
+    def remove(self, data):
+        if self.root:
+            self.remove_node(data, self.root)
+
+    def insert(self, data):
+        if self.root is None:
+            self.root = Node(data, None)
+        else:
+            self.insert_node(data, self.root)
+
+    def insert_node(self, data, node):
+        # we have to go to the left subtree
+        if data < node.data:
+            if node.leftChild:
+                self.insert_node(data, node.leftChild)
+            else:
+                node.leftChild = Node(data, node)
+                node.height = max(self.calc_height(node.leftChild), self.calc_height(node.rightChild))+1
+        # we have to visit the right subtree
+        else:
+            if node.rightChild:
+                self.insert_node(data, node.rightChild)
+            else:
+                node.rightChild = Node(data, node)
+                node.height = max(self.calc_height(node.leftChild), self.calc_height(node.rightChild))+1
+
+        self.handle_violation(node)
+
+    def handle_violation(self, node):
+
+        while node is not None:
+            node.height = max(self.calc_height(node.leftChild), self.calc_height(node.rightChild))+1
+            self.violation_helper(node)
+            node = node.parent
+
+    def remove_node(self, data, node):
+
+        # if there is no node
+        if node is None:
+            return
+
+        # if the data is smaller than the actual node's data, we have to go to the left subtree
+        # so we call it recursively 
+        if data < node.data:
+            self.remove_node(data, node.leftChild)
+        elif data > node.data:
+            self.remove_node(data, node.rightChild)
+        
+        # when we find the node, we can now remove it
+        else:
+
+            # removing a leaf node (no children)
+            if node.leftChild is None and node.rightChild is None:
+                print("Removing a leaf node...%d" % node.data)
+
+                parent = node.parent
+
+                # this is how we remove if it is the left child of parent...
+                if parent is not None and parent.leftChild == node:
+                    parent.leftChild = None
+                # ...removal for right child of parent
+                if parent is not None and parent.rightChild == node:
+                    # we set the right child reference to none indicating there is no longer a right child
+                    parent.rightChild = None
+
+                if parent is None:
+                    self.root = None
+
+                del node
+
+                self.handle_violation(parent)
+
+            elif node.leftChild is None and node.rightChild is not None:  # node !!!
+                print("Removing a node with single right child...")
+
+                parent = node.parent
+
+                if parent is not None:
+                    if parent.leftChild == node:
+                        parent.leftChild = node.leftChild
+                    if parent.rightChild == node:
+                        parent.rightChild = node.rightChild
+
+                # if we're dealing with the root node, update the root
+                else:
+                    self.root = node.rightChild
+
+                node.rightChild.parent = parent
+                del node
+
+                self.handle_violation(parent)
+
+            elif node.rightChild is None and node.leftChild is not None:
+                print("Removing a node with single left child...")
+
+                parent = node.parent
+
+                if parent is not None:
+                    if parent.leftChild == node:
+                        parent.leftChild = node.leftChild
+                    if parent.rightChild == node:
+                        parent.rightChild = node.leftChild
+                else:
+                    self.root = node.leftChild
+
+                node.leftChild.parent = parent
+                del node
+
+                self.handle_violation(parent)
+
+            else:
+                print('Removing node with two children....')
+
+                predecessor = self.get_predecessor(node.leftChild)
+
+                temp = predecessor.data
+                predecessor.data = node.data
+                node.data = temp
+
+                self.remove_node(data, predecessor)
+
+    def get_predecessor(self, node):
+        if node.rightChild:
+            return self.get_predecessor(node.rightChild)
+
+        return node
+
+    def violation_helper(self, node):
+
+        balance = self.calc_balance(node)
+
+        # left heavy tree (still have to determine if left-left heavy or left-right heavy)
+        if balance > 1:
+
+            # left right heavy situation: left rotation on parent + right rotation on grandparent
+            if self.calc_balance(node.leftChild) < 0:
+                self.rotate_left(node.leftChild)
+
+            # this is the right rotation on grandparent (if left-left heavy, that's single right rotation is needed)
+            self.rotate_right(node)
+
+        # same thing but for right heavy
+        if balance < -1:
+
+            # right - left heavy so we need a right rotation before left rotation
+            if self.calc_balance(node.rightChild) > 0:
+                self.rotate_right(node.rightChild)
+
+            # left rotation
+            self.rotate_left(node)
+
+    def calc_height(self, node):
+
+        if node is None:
+            return -1
+
+        return node.height
+
+    def calc_balance(self, node):
+
+        if node is None:
+            return 0
+
+        return self.calc_height(node.leftChild) - self.calc_height(node.rightChild)
+
+    def traverse(self):
+        if self.root is not None:
+            self.traverse_in_order(self.root)
+
+    def traverse_in_order(self, node):
+        if node.leftChild:
+            self.traverse_in_order(node.leftChild)
+
+        left = ''
+        right = ''
+        parent = ''
+
+        if node.leftChild is not None:
+            left = node.leftChild.data
+        else:
+            left = 'NULL'
+
+        if node.rightChild is not None:
+            right = node.rightChild.data
+        else:
+            right = 'NULL'
+
+        if node.parent is not None:
+            parent = node.parent.data
+        else:
+            parent = 'NULL'
+
+        print("Node containing: %s \nleft: %s \nright: %s \nparent: %s\nheight: %s\n" % (node.data, left, right, parent, node.height))
+
+        if node.rightChild:
+            self.traverse_in_order(node.rightChild)
+
+    def rotate_right(self, node):
+        print("Rotating to the right on node ", node.data)
+
+        temp_left_node = node.leftChild
+        t = temp_left_node.rightChild
+
+        temp_left_node.rightChild = node
+        node.leftChild = t
+
+        if t is not None:
+            t.parent = node
+
+        temp_parent = node.parent
+        node.parent = temp_left_node
+        temp_left_node.parent = temp_parent
+
+        if temp_left_node.parent is not None and temp_left_node.parent.leftChild == node:
+            temp_left_node.parent.leftChild = temp_left_node
+
+        if temp_left_node.parent is not None and temp_left_node.parent.rightChild == node:
+            temp_left_node.parent.rightChild = temp_left_node
+
+        if node == self.root:
+            self.root = temp_left_node
+
+        node.height = max(self.calc_height(node.leftChild), self.calc_height(node.rightChild)) + 1
+        temp_left_node.height = max(self.calc_height(temp_left_node.leftChild),
+                                    self.calc_height(temp_left_node.rightChild)) + 1
+
+    def rotate_left(self, node):
+        print("Rotating to the left on node ", node.data)
+
+        temp_right_node = node.rightChild
+        t = temp_right_node.leftChild
+
+        temp_right_node.leftChild = node
+        node.rightChild = t
+
+        if t is not None:
+            t.parent = node
+
+        temp_parent = node.parent
+        node.parent = temp_right_node
+        temp_right_node.parent = temp_parent
+
+        if temp_right_node.parent is not None and temp_right_node.parent.leftChild == node:
+            temp_right_node.parent.leftChild = temp_right_node
+
+        if temp_right_node.parent is not None and temp_right_node.parent.rightChild == node:
+            temp_right_node.parent.rightChild = temp_right_node
+
+        if node == self.root:
+            self.root = temp_right_node
+
+        node.height = max(self.calc_height(node.leftChild), self.calc_height(node.rightChild)) + 1
+        temp_right_node.height = max(self.calc_height(temp_right_node.leftChild),
+                                     self.calc_height(temp_right_node.rightChild)) + 1
+
+
+
+
+avl = AVLTree()
+avl.insert(543)
+avl.insert(3242)
+avl.insert(665)
+avl.insert(3241)
+
+avl.remove(665)
+avl.traverse()
