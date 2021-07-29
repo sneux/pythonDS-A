@@ -1,0 +1,178 @@
+class Color:
+    RED = 1
+    BLACK = 2
+
+class Node:
+    def __init__(self, data, parent = None, color = Color.RED):
+        self.data = data
+        self.parent = parent 
+        self.leftChild = None
+        self.rightChild = None
+        self.color = color
+
+class RedBlackTree:
+    def __init__(self):
+        self.root = None
+
+    def insert(self, data):
+        if self.root is None:
+            self.root = Node(data)
+            self.check_violation(self.root)
+        else:
+            self.insert_node(data, self.root)
+    
+    def insert_node(self, data, node):
+        if data < node.data:
+            if node.leftChild:
+                self.insert_node(data, node.leftChild)
+            else:
+                node.leftChild = Node(data, node)
+                self.check_violation(node.leftChild)
+        else:
+            if node.rightChild:
+                self.insert_node(data, node.rightChild)
+            else:
+                node.rightChild = Node(data, node)
+                self.check_violation(node.rightChild)
+
+    def traverse(self):
+        if self.root:
+            self.in_order_traversal(self.root)
+
+    def in_order_traversal(self, node):
+        # visit left subtree first....
+        if node.leftChild:
+            self.in_order_traversal(node.leftChild)
+
+        # ...then the root...
+        print(node.data)
+
+        # ...then the right subtree
+        if node.rightChild:
+            self.in_order_traversal(node.rightChild)
+    
+    def is_red(self, node):
+        if node is None:
+            return False
+
+        return node.color == Color.RED
+
+    def check_violation(self, node):
+        while node != self.root and self.is_red(node) and self.is_red(node.parent):
+            parent = node.parent
+            grandparent = parent.parent
+
+            # parent is the left child of node's grandparent 
+            if parent == grandparent.leftChild:
+                uncle = grandparent.rightChild 
+
+                if uncle and self.is_red(uncle):
+                    print("Re-coloring node ", grandparent.data, "to RED...")
+                    grandparent.color = Color.RED
+                    print("Re-coloring node ", parent.data, "to BLACK")
+                    parent.color = Color.BLACK
+                    uncle.color = Color.BLACK
+                    node = grandparent
+                else:
+                    # we know uncle is black and the node is right child 
+                    if node == parent.rightChild:
+                        self.rotate_left(parent)
+                        node = parent
+                        parent = node.parent
+
+                    # rotation on the grandparent and then switch color of grandparent and parent
+
+                    parent.color = Color.BLACK
+                    grandparent.color = Color.RED
+                    print("Re-colored ", parent.data, "to BLACK")
+                    print("REcolored ", grandparent.data, "to RED")
+                    self.rotate_right(grandparent)
+
+            # uncle is left node of grandparent
+            else:
+                uncle = grandparent.leftChild 
+
+                if uncle and self.is_red(uncle):
+                    print("Re-coloring node ", grandparent.data, "to RED...")
+                    grandparent.color = Color.RED
+                    print("Re-coloring node ", parent.data, "to BLACK")
+                    parent.color = Color.BLACK
+                    uncle.color = Color.BLACK
+                    node = grandparent
+                else:
+                    if node == parent.leftChild:
+                        self.rotate_right(parent)
+                        node = parent
+                        parent = node.parent 
+
+                    parent.color = Color.BLACK
+                    grandparent.color = Color.RED
+                    print("Re-colored ", parent.data, "to BLACK")
+                    print("REcolored ", grandparent.data, "to RED")
+                    self.rotate_left(grandparent)
+
+        if self.is_red(self.root):
+            print("Recoloring root node to black...")
+            self.root.color = Color.BLACK
+
+    def rotate_right(self, node):
+        print("Rotating to the right of node ", node.data)
+
+        temp_leftChild = node.leftChild
+        t = temp_leftChild.rightChild 
+
+        temp_leftChild.rightChild = node
+        node.leftChild = t 
+
+        if t:
+            t.parent = node
+        
+        temp_parent = node.parent
+        node.parent = temp_leftChild
+        temp_leftChild.parent = temp_parent
+
+        if temp_leftChild.parent and temp_leftChild.parent.leftChild == node:
+            temp_leftChild.parent.leftChild = temp_leftChild
+
+        if temp_leftChild.parent and temp_leftChild.parent.rightChild == node:
+            temp_leftChild.parent.rightChild = temp_leftChild
+
+        if node == self.root:
+            self.root = temp_leftChild
+
+    def rotate_left(self, node):
+        print("Rotating to the left on node ", node.data)
+
+        temp_rightChild = node.rightChild 
+        t = temp_rightChild.leftChild 
+
+        temp_rightChild.leftChild = node
+        node.rightChild = t 
+
+        if t:
+            t.parent = node 
+
+        temp_parent = node.parent
+        node.parent = temp_rightChild
+        temp_rightChild.parent = temp_parent
+
+        if temp_rightChild.parent and temp_rightChild.parent.leftChild == node:
+            temp_rightChild.parent.leftChild = temp_rightChild
+        
+        if temp_rightChild.parent and temp_rightChild.parent.rightChild == node:
+            temp_rightChild.parent.rightChild = temp_rightChild
+
+        if node == self.root:
+            self.root = temp_rightChild
+
+
+tree =  RedBlackTree()
+tree.insert(32)
+tree.insert(30)
+tree.insert(20)
+tree.insert(345)
+tree.insert(76)
+tree.insert(21)
+tree.insert(2)
+tree.insert(35)
+tree.traverse()
