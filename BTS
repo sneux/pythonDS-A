@@ -170,7 +170,18 @@ class BinarySearchTree:
             self.remove_node(data, self.root)
 
                     
+class TreeComparator(object):
+    def compare_trees(self, node1, node2):
 
+        # check the base case 
+        if not node1 or not node1:
+            return node1 == node2
+        
+        # if the values within the nodes are not the same
+        if node1.data is not node2.data:
+            return False
+        
+        return self.compare_trees(node1.leftChild, node2.leftChild) and self.compare_trees(node1.rightChild, node2.rightChild)
 
 
 
