@@ -1,0 +1,85 @@
+capacity = 10
+
+class Heap:
+    def __init__(self):
+        self.heap_size = 0
+        # the underlying array data structure
+        self.heap = [0] * capacity
+
+    def insert(self, item):
+        # when the heap is full 
+        if self.heap_size == capacity:
+            return
+        
+        self.heap[self.heap_size] = item
+        self.heap_size = self.heap_size + 1 
+
+        # check the heap properties 
+        self.fix_up(self.heap_size - 1)
+
+    # start with actual item we have sorted up to the first item 
+    # compare the values to determine whether to swap or not
+    # O(logN) running time
+    def fix_up(self, index):
+        parent_index = (index - 1) // 2
+
+        # consider all the items above til we hit the first item
+        if index > 0 and self.heap[index] > self.heap[parent_index]:
+            self.heap[index], self.heap[parent_index] = self.heap[parent_index], self.heap[index]
+            self.fix_up(parent_index)
+    
+    # start with root 
+    def fix_down(self, index):
+        left_index = 2 * index + 1
+        right_index = 2 * index + 2
+        largest_index = index
+
+        # looking for largest 
+        if left_index < self.heap_size and self.heap[left_index] > self.heap[index]:
+            largest_index = left_index
+        
+        # if the right child is greater than the left child: the largest is the right child
+        if right_index < self.heap_size and self.heap[right_index] > self.heap[largest_index]:
+            largest_index = right_index
+        
+        # if the parent is larger than the children, it is a valid heap so we call
+        # this function recursively while the heap properties are violated 
+        # remember the index represents the first element 
+        if index != largest_index:
+            self.heap[index], self.heap[largest_index] = self.heap[largest_index], self.heap[index]
+            self.fix_down(largest_index)
+    
+    def get_max(self):
+        return self.heap[0]
+
+    # return max and remove it
+    def poll(self):
+        max_item = self.get_max()
+        self.heap[0], self.heap[self.heap_size - 1] = self.heap[self.heap_size - 1], self.heap[0]
+        self.heap_size = self.heap_size - 1
+        # using first item 
+        self.fix_down(0)
+        return max_item
+
+    def heap_sort(self):
+        for _ in range(self.heap_size):
+            max_item = self.poll()
+            print(max_item)
+
+    
+
+heap = Heap()
+heap.insert(1)
+heap.insert(10)
+heap.insert(5)
+heap.insert(20)
+heap.insert(15)
+heap.insert(25)
+heap.insert(45)
+heap.insert(35)
+heap.insert(30)
+heap.insert(40)
+
+
+print(heap.heap)
+heap.heap_sort()
