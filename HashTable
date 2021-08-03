@@ -1,0 +1,69 @@
+class HashTable:
+    def __init__(self):
+        # based on the load factor, we may change the size
+        # of the underlying data structure (list)
+        self.size = 10 
+        self.keys = [None] * self.size 
+        self.values = [None] * self.size 
+
+    def get(self, key):
+        # we have to find a valid index for the value
+        index = self.hash_function(key)
+
+        while self.keys[index] is not None:
+            # when we find the item we're looking for
+            if self.keys[index] == key:
+                return self.values[index]
+            index = (index + 1) % self.size
+        
+        # we didnt find the value based on the key 
+        return None
+
+    # hash value (index of array) based on the array
+    def hash_function(self, key):
+        hash_sum = 0
+
+        # gets the ascii value of each letter in the key 
+        # and adds them together 
+        for letter in key:
+            hash_sum = hash_sum + ord(letter)
+
+        # divide by size of array to avoid out of bounds error
+        return hash_sum % self.size
+
+    def insert(self, key, data):
+        # first we have to find a valid index for the data
+        index = self.hash_function(key)
+
+        # there may be some collisions (index is taken)
+        # so...while we do not find an empty index
+        while self.keys[index] is not None:
+            # if the key is already present, we have to update
+            # the value
+            if self.keys[index] == key:
+                self.values[index] = data
+                return 
+
+            # otherwise we have to do linear probing 
+            # try next slot in the array 
+            # to avoid going out of bounds, we divide by the size 
+            index = (index + 1) % self.size
+
+        # we have found a valid index for the data
+        # so we insert the data there
+        self.values[index] = data
+        self.keys[index] = key
+
+
+table = HashTable()
+table.insert('Adam', 1)
+table.insert('carlos', 45)
+table.insert('danny', 65)
+table.insert('yes', 14)
+table.insert('no', 2000)
+
+
+
+print(table.get('no'))
+
+
