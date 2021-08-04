@@ -4,6 +4,15 @@ class Node:
         # to store neighbors
         self.adjacency_list = []
         self.visited = False
+        
+# recursive way to do it 
+# the operating system creates its on stack 
+def dep_first_search(node):
+    node.visited = True
+    print(node.name)
+    for i in node.adjacency_list:
+        if not i.visited:
+            dep_first_search(i)
 
 def depth_first_search(start_node):
     # must use stack for this (unless using recursion)
@@ -43,3 +52,5 @@ node4.adjacency_list.append(node5)
 
 
 depth_first_search(node1)
+dep_first_search(node1)
+
