@@ -1,0 +1,49 @@
+class Node:
+    def __init__(self, name):
+        self.name = name 
+        # to store neighbors
+        self.adjacency_list = []
+        self.visited = False
+
+def depth_first_search(start_node):
+    # must use stack for this (unless using recursion)
+    # LIFO structure
+    stack = [start_node]
+
+    # iterate until stack becomes empty
+    while stack:
+        # returns last item we inserted 
+        actual_node = stack.pop()
+        actual_node.visited = True
+        print(actual_node.name)
+
+        for i in actual_node.adjacency_list:
+            # if the node has not been visisted 
+            if i.visited == False:
+                # insert the item in the stack 
+                stack.append(i)
+
+
+node1 = Node("A")
+node2 = Node("B")
+node3 = Node("C")
+node4 = Node("D")
+node5 = Node("E")
+
+# set the neighbors of each node
+node1.adjacency_list.append(node2)
+node1.adjacency_list.append(node3)
+node1.adjacency_list.append(node4)
+node3.adjacency_list.append(node4)
+node3.adjacency_list.append(node5)
+# this makes B print out twice when doing a DFS on node 1????
+# maybe: B.visited is not being turned to true once visisted for some reason OR
+# B.visited is only being turned to true in one list and not the other?
+# but then that would mean E should print out twice as well and it doesn't 
+# lord knows
+node4.adjacency_list.append(node2)
+node4.adjacency_list.append(node5)
+
+
+
+depth_first_search(node1)
