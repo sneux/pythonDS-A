@@ -1,0 +1,43 @@
+# breadth first search 
+
+class Node:
+    # name represents the vertex 
+    def __init__(self, name):
+        self.name = name
+        # list to represent neighbors 
+        self.adjacency_list = []
+        # keeps track of whether the node was visited or not 
+        self.visited = False 
+
+def breadth_first_search(start_node):
+    # FIFO
+    queue = [start_node]
+
+    # keep iterating until the queue is empty 
+    # (when all neighbors have been visited)
+    while queue:
+        # remove and return first item we have inserted
+        actual_node = queue.pop(0)
+        actual_node.visited = True
+        print(actual_node.name)
+
+        # consider the neigbors of the actual node 1 by 1
+        for i in actual_node.adjacency_list:
+            # if the neighbor has not been visited
+            # add it to the queue 
+            if not i.visited:
+                queue.append(i)
+
+node1 = Node("A")
+node2 = Node("B")
+node3 = Node("C")
+node4 = Node("D")
+node5 = Node("E")
+
+node1.adjacency_list.append(node2)
+node1.adjacency_list.append(node3)
+node2.adjacency_list.append(node4)
+node4.adjacency_list.append(node5)
+
+breadth_first_search(node1)
+
