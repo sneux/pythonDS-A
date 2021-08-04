@@ -20,6 +20,7 @@ def depth_first_search(start_node):
         for i in actual_node.adjacency_list:
             # if the node has not been visisted 
             if i.visited == False:
+                i.visited = True
                 # insert the item in the stack 
                 stack.append(i)
 
@@ -36,11 +37,6 @@ node1.adjacency_list.append(node3)
 node1.adjacency_list.append(node4)
 node3.adjacency_list.append(node4)
 node3.adjacency_list.append(node5)
-# this makes B print out twice when doing a DFS on node 1????
-# maybe: B.visited is not being turned to true once visisted for some reason OR
-# B.visited is only being turned to true in one list and not the other?
-# but then that would mean E should print out twice as well and it doesn't 
-# lord knows
 node4.adjacency_list.append(node2)
 node4.adjacency_list.append(node5)
 
